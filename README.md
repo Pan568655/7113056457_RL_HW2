@@ -45,7 +45,7 @@ HW2: 使用價值迭代算法推導最佳政策
 
 ### Optimal Policy & Value Function 可視化
 
-![執行成果圖](static/sample_output.png)
+![執行成果圖](static/result_20250328111145473546.png)
 
 > 左圖：每格的 V(s) 值；右圖：最佳策略方向（↑ ↓ ← →），終點以紅星顯示，灰格為障礙。
 
