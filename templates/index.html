@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>n x n Grid RL HW</title>
+    <style>
+        table { border-collapse: collapse; margin-top: 10px; }
+        td {
+            width: 50px; height: 50px;
+            text-align: center;
+            border: 1px solid black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .start { background-color: green; color: white; }
+        .end { background-color: red; color: white; }
+        .wall { background-color: gray; color: white; }
+    </style>
+</head>
+<body>
+    <h1>RL HW1 + HW2: Grid & Policy Evaluation</h1>
+
+    <form method="POST">
+        Enter a number between 3 and 10: 
+        <input type="number" name="n" min="3" max="10" value="{{n}}">
+        <button type="submit">Generate Grid</button>
+    </form>
+
+    <h2>{{n}} x {{n}} Grid</h2>
+    <p>請依序點擊格子設定：<strong>綠色</strong>為起點、<strong>紅色</strong>為終點、<strong>灰色</strong>為障礙物</p>
+    
+    <table id="grid"></table>
+
+    <br>
+    <button onclick="generatePolicy()">產生最佳政策與價值圖</button>
+
+    <br><br>
+    <img id="resultImage" style="max-width: 800px; border: 1px solid #ccc;">
+
+    <script>
+        const n = {{n}};
+        let table = document.getElementById("grid");
+        let start = null;
+        let end = null;
+        let walls = [];
+
+        for (let i = 0; i < n; i++) {
+            let row = table.insertRow();
+            for (let j = 0; j < n; j++) {
+                let cell = row.insertCell();
+                cell.textContent = i * n + j + 1;
+                cell.dataset.row = i;
+                cell.dataset.col = j;
+                cell.onclick = function () {
+                    const r = parseInt(this.dataset.row);
+                    const c = parseInt(this.dataset.col);
+                    if (!start) {
+                        this.className = 'start';
+                        start = [r, c];
+                    } else if (!end && this.className !== 'start') {
+                        this.className = 'end';
+                        end = [r, c];
+                    } else if (this.className !== 'start' && this.className !== 'end') {
+                        this.className = 'wall';
+                        walls.push([r, c]);
+                    }
+                };
+            }
+        }
+
+        function generatePolicy() {
+            if (!start || !end) {
+                alert("請先選擇起點與終點！");
+                return;
+            }
+
+            fetch("/api/generate", {
+                method: "POST",
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    n: n,
+                    start: start,
+                    end: end,
+                    walls: walls
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById("resultImage").src = data.image_url + '?t=' + Date.now();
+            });
+        }
+    </script>
+</body>
+</html>
